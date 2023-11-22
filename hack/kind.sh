@@ -61,9 +61,18 @@ containerdConfigPatches:
     endpoint = ["http://${reg_host}:5000"]
 nodes:
 - role: control-plane
-  image: kindest/node:v1.27.1@sha256:9915f5629ef4d29f35b478e819249e89cfaffcbfeebda4324e5c01d53d937b09 
+  image: kindest/node:v1.28.0@sha256:b7a4cad12c197af3ba43202d3efe03246b3f0793f162afb40a33c923952d5b31 
+  kubeadmConfigPatches:
+  - |
+    kind: ClusterConfiguration
+    apiServer:
+      extraArgs:
+        "v": "8"
+    controllerManager:
+      extraArgs:
+        "v": "8"
 - role: worker
-  image: kindest/node:v1.27.1@sha256:9915f5629ef4d29f35b478e819249e89cfaffcbfeebda4324e5c01d53d937b09 
+  image: kindest/node:v1.28.0@sha256:b7a4cad12c197af3ba43202d3efe03246b3f0793f162afb40a33c923952d5b31
 EOF
 
 cat <<EOF | kubectl apply -f -
