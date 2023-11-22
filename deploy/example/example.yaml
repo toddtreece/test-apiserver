@@ -1,0 +1,6 @@
+apiVersion: example.toddtreece.com/v1beta1
+kind: Example
+metadata:
+  name: test
+spec:
+  description: test

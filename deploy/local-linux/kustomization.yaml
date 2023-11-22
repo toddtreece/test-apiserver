@@ -1,0 +1,5 @@
+namespace: test
+
+resources:
+  - ../local-common
+  - service.yaml
