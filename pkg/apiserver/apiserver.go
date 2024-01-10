@@ -17,11 +17,14 @@ limitations under the License.
 package apiserver
 
 import (
+	"net/http"
+
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/runtime"
 	"k8s.io/apimachinery/pkg/runtime/schema"
 	"k8s.io/apimachinery/pkg/runtime/serializer"
 	"k8s.io/apimachinery/pkg/version"
+	"k8s.io/apiserver/pkg/endpoints/discovery"
 	"k8s.io/apiserver/pkg/registry/rest"
 	genericapiserver "k8s.io/apiserver/pkg/server"
 
@@ -99,7 +102,8 @@ func (cfg *Config) Complete() CompletedConfig {
 
 // New returns a new instance of ExampleServer from the given config.
 func (c completedConfig) New() (*ExampleServer, error) {
-	genericServer, err := c.GenericConfig.New("test-apiserver", genericapiserver.NewEmptyDelegate())
+	delegationTarget := genericapiserver.NewEmptyDelegate()
+	genericServer, err := c.GenericConfig.New("test-apiserver", delegationTarget)
 	if err != nil {
 		return nil, err
 	}
@@ -124,6 +128,43 @@ func (c completedConfig) New() (*ExampleServer, error) {
 	if err := s.GenericAPIServer.InstallAPIGroup(&apiGroupInfo); err != nil {
 		return nil, err
 	}
+
+	delegateHandler := delegationTarget.UnprotectedHandler()
+	if delegateHandler == nil {
+		delegateHandler = http.NotFoundHandler()
+	}
+
+	versionDiscovery := &versionDiscoveryHandler{
+		discovery: map[schema.GroupVersion]*discovery.APIVersionHandler{},
+		delegate:  delegateHandler,
+	}
+
+	groupDiscovery := &groupDiscoveryHandler{
+		discovery: map[string]*discovery.APIGroupHandler{},
+		delegate:  delegateHandler,
+	}
+
+	gv := schema.GroupVersion{Group: "empty.toddtreece.com", Version: "v1"}
+	apiVersionsForDiscovery := []metav1.GroupVersionForDiscovery{}
+	apiResourcesForDiscovery := []metav1.APIResource{}
+	apiVersionsForDiscovery = append(apiVersionsForDiscovery, metav1.GroupVersionForDiscovery{
+		GroupVersion: gv.String(),
+		Version:      gv.Version,
+	})
+	apiGroup := metav1.APIGroup{
+		Name:     gv.Group,
+		Versions: apiVersionsForDiscovery,
+		// the preferred versions for a group is the first item in
+		// apiVersionsForDiscovery after it put in the right ordered
+		PreferredVersion: apiVersionsForDiscovery[0],
+	}
+	groupDiscovery.setDiscovery(gv.Group, discovery.NewAPIGroupHandler(Codecs, apiGroup))
+	versionDiscovery.setDiscovery(gv, discovery.NewAPIVersionHandler(Codecs, gv, discovery.APIResourceListerFunc(func() []metav1.APIResource {
+		return apiResourcesForDiscovery
+	})))
+
+	s.GenericAPIServer.Handler.NonGoRestfulMux.Handle("/apis/empty.toddtreece.com", groupDiscovery)
+	s.GenericAPIServer.Handler.NonGoRestfulMux.Handle("/apis/empty.toddtreece.com/v1", versionDiscovery)
 
 	return s, nil
 }
