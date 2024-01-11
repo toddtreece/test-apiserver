@@ -18,10 +18,10 @@ spec:
 apiVersion: apiregistration.k8s.io/v1
 kind: APIService
 metadata:
-  name: v1.empty.toddtreece.com
+  name: v1.query.toddtreece.com
 spec:
   insecureSkipTLSVerify: true
-  group: empty.toddtreece.com
+  group: query.toddtreece.com
   groupPriorityMinimum: 1000
   versionPriority: 15
   service:

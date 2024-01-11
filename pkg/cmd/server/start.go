@@ -30,7 +30,6 @@ import (
 	"k8s.io/apimachinery/pkg/runtime/schema"
 	utilerrors "k8s.io/apimachinery/pkg/util/errors"
 	"k8s.io/apiserver/pkg/endpoints/openapi"
-	"k8s.io/apiserver/pkg/features"
 	genericapiserver "k8s.io/apiserver/pkg/server"
 	genericoptions "k8s.io/apiserver/pkg/server/options"
 	utilfeature "k8s.io/apiserver/pkg/util/feature"
@@ -121,11 +120,9 @@ func (o *ExampleServerOptions) Config() (*apiserver.Config, error) {
 	serverConfig.OpenAPIConfig.Info.Title = "Example"
 	serverConfig.OpenAPIConfig.Info.Version = "0.1"
 
-	if utilfeature.DefaultFeatureGate.Enabled(features.OpenAPIV3) {
-		serverConfig.OpenAPIV3Config = genericapiserver.DefaultOpenAPIV3Config(exampleopenapi.GetOpenAPIDefinitions, openapi.NewDefinitionNamer(apiserver.Scheme))
-		serverConfig.OpenAPIV3Config.Info.Title = "Example"
-		serverConfig.OpenAPIV3Config.Info.Version = "0.1"
-	}
+	serverConfig.OpenAPIV3Config = genericapiserver.DefaultOpenAPIV3Config(exampleopenapi.GetOpenAPIDefinitions, openapi.NewDefinitionNamer(apiserver.Scheme))
+	serverConfig.OpenAPIV3Config.Info.Title = "Example"
+	serverConfig.OpenAPIV3Config.Info.Version = "0.1"
 
 	if err := o.RecommendedOptions.ApplyTo(serverConfig); err != nil {
 		return nil, err
@@ -150,5 +147,9 @@ func (o ExampleServerOptions) RunExampleServer(stopCh <-chan struct{}) error {
 		return err
 	}
 
-	return server.GenericAPIServer.PrepareRun().Run(stopCh)
+	prepared := server.GenericAPIServer.PrepareRun()
+
+	apiserver.InstallCustomOpenAPI(prepared.GenericAPIServer)
+
+	return prepared.Run(stopCh)
 }
