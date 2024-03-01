@@ -60,3 +60,27 @@ type ResourceCallOptions struct {
 	// +optional
 	Path string `json:"path,omitempty" protobuf:"bytes,1,opt,name=path"`
 }
+
+// +k8s:openapi-gen=true
+// +k8s:deepcopy-gen:interfaces=k8s.io/apimachinery/pkg/runtime.Object
+type QueryRequest struct {
+	metav1.TypeMeta `json:",inline"`
+
+	Spec QueryRequestSpec `json:"spec,omitempty"`
+}
+
+type QueryRequestSpec struct {
+	Foo string `json:"foo,omitempty"`
+}
+
+// +k8s:openapi-gen=true
+// +k8s:deepcopy-gen:interfaces=k8s.io/apimachinery/pkg/runtime.Object
+type QueryResponse struct {
+	metav1.TypeMeta `json:",inline"`
+
+	Spec QueryResponseSpec `json:"spec,omitempty"`
+}
+
+type QueryResponseSpec struct {
+	Bar string `json:"bar,omitempty"`
+}

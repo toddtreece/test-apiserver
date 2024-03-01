@@ -123,6 +123,7 @@ func (c completedConfig) New() (*ExampleServer, error) {
 	}
 	v1beta1storage["examples"] = restStorage.Example
 	v1beta1storage["examples/resources"] = restStorage.ResourceCall
+	v1beta1storage["examples/query"] = restStorage.Query
 	apiGroupInfo.VersionedResourcesStorageMap["v1beta1"] = v1beta1storage
 
 	if err := s.GenericAPIServer.InstallAPIGroup(&apiGroupInfo); err != nil {
