@@ -50,6 +50,8 @@ func addKnownTypes(scheme *runtime.Scheme) error {
 		&Example{},
 		&ExampleList{},
 		&ResourceCallOptions{},
+		&QueryRequest{},
+		&QueryResponse{},
 	)
 	return nil
 }

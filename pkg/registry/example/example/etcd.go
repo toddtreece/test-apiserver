@@ -32,6 +32,7 @@ import (
 type Storage struct {
 	Example      *REST
 	ResourceCall *ResourceCallREST
+	Query        *QueryREST
 }
 
 type REST struct {
@@ -62,9 +63,11 @@ func NewREST(scheme *runtime.Scheme, optsGetter generic.RESTOptionsGetter) (*Sto
 	}
 	exampleStorage := &REST{&Wrapper{store}}
 	resourceCall := &ResourceCallREST{store}
+	query := &QueryREST{store}
 	return &Storage{
 		Example:      exampleStorage,
 		ResourceCall: resourceCall,
+		Query:        query,
 	}, nil
 
 }

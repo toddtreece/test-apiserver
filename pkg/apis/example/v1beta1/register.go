@@ -52,6 +52,8 @@ func addKnownTypes(scheme *runtime.Scheme) error {
 		&Example{},
 		&ExampleList{},
 		&ResourceCallOptions{},
+		&QueryRequest{},
+		&QueryResponse{},
 	)
 	metav1.AddToGroupVersion(scheme, SchemeGroupVersion)
 	return nil

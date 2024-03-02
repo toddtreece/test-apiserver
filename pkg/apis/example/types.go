@@ -57,3 +57,25 @@ type ResourceCallOptions struct {
 	// Path is the URL path to use for the current proxy request
 	Path string
 }
+
+// +k8s:deepcopy-gen:interfaces=k8s.io/apimachinery/pkg/runtime.Object
+type QueryRequest struct {
+	metav1.TypeMeta `json:",inline"`
+
+	Spec QueryRequestSpec `json:"spec,omitempty"`
+}
+
+type QueryRequestSpec struct {
+	Foo string `json:"foo,omitempty"`
+}
+
+// +k8s:deepcopy-gen:interfaces=k8s.io/apimachinery/pkg/runtime.Object
+type QueryResponse struct {
+	metav1.TypeMeta `json:",inline"`
+
+	Spec QueryResponseSpec `json:"spec,omitempty"`
+}
+
+type QueryResponseSpec struct {
+	Bar string `json:"bar,omitempty"`
+}
